@@ -11,12 +11,14 @@ export interface Device {
   repair_history?: string | null
   notes?: string | null
   estimated_price?: number | null
+  status?: string | null
   is_deleted: boolean
   created_at: string
   updated_at?: string | null
   created_by?: string | null
   updated_by?: string | null
   inspections: Inspection[]
+  transactions: Transaction[]
 }
 
 export interface DeviceListItem {
@@ -29,8 +31,10 @@ export interface DeviceListItem {
   battery_health?: number | null
   appearance?: string | null
   estimated_price?: number | null
+  status?: string | null
   created_at: string
   inspection_count: number
+  transaction_count: number
 }
 
 export interface DeviceCreate {
@@ -59,6 +63,7 @@ export interface DeviceUpdate {
   repair_history?: string | null
   notes?: string | null
   estimated_price?: number | null
+  status?: string | null
 }
 
 export interface Inspection {
@@ -99,6 +104,53 @@ export interface InspectionUpdate {
   notes?: string | null
 }
 
+export interface Transaction {
+  id: number
+  device_id: number
+  trade_type: string
+  actual_amount: number
+  counterparty_name: string
+  trade_date: string
+  settlement_method: string
+  notes?: string | null
+  is_deleted: boolean
+  created_at: string
+  updated_at?: string | null
+  created_by?: string | null
+  updated_by?: string | null
+}
+
+export interface TransactionCreate {
+  device_id: number
+  trade_type: string
+  actual_amount: number
+  counterparty_name: string
+  trade_date: string
+  settlement_method: string
+  notes?: string | null
+}
+
+export interface TransactionUpdate {
+  trade_type?: string | null
+  actual_amount?: number | null
+  counterparty_name?: string | null
+  trade_date?: string | null
+  settlement_method?: string | null
+  notes?: string | null
+}
+
+export interface BenchmarkResponse {
+  brand: string
+  model: string
+  appearance?: string | null
+  days: number
+  count: number
+  max_price?: number | null
+  min_price?: number | null
+  avg_price?: number | null
+  median_price?: number | null
+}
+
 export interface PaginatedResponse {
   total: number
   page: number
@@ -116,8 +168,17 @@ export interface MetadataResponse {
   mainstream_brands: string[]
   appearance_grades: string[]
   function_items: FunctionItemOption[]
+  trade_types: string[]
+  settlement_methods: string[]
+  device_statuses: string[]
 }
 
 export const MAINSTREAM_BRANDS = ['苹果', '华为', '小米', 'OPPO', 'vivo', '三星', '荣耀', '一加', 'realme', '魅族']
 
 export const APPEARANCE_GRADES = ['全新', '99新', '95新', '9成新', '8成新', '7成新及以下']
+
+export const TRADE_TYPES = ['回收', '转售']
+
+export const SETTLEMENT_METHODS = ['现金', '转账', '以旧换新抵扣']
+
+export const DEVICE_STATUSES = ['在库待售', '已售出', '已回收']

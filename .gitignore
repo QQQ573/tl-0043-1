@@ -42,3 +42,7 @@ npm-debug.log*
 
 # Vite
 .vite/
+
+# Debug / temp
+backend/debug_output.txt
+backend/test_debug*.py

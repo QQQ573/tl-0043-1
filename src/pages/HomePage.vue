@@ -176,6 +176,17 @@
                 <span class="text-gray-400">质检：</span>
                 <span class="text-gray-700">{{ device.inspection_count }} 次</span>
               </div>
+              <div class="text-sm col-span-2">
+                <span class="text-gray-400">状态：</span>
+                <span
+                  class="px-1.5 py-0.5 text-xs font-medium rounded"
+                  :class="statusClass(device.status)"
+                >
+                  {{ device.status || '在库待售' }}
+                </span>
+                <span class="text-gray-400 ml-3">成交：</span>
+                <span class="text-gray-700">{{ device.transaction_count }} 笔</span>
+              </div>
             </div>
 
             <div v-if="device.estimated_price != null" class="pt-3 border-t border-gray-100">
@@ -339,6 +350,15 @@ function batteryClass(health?: number | null) {
   if (health >= 90) return 'text-green-600 font-medium'
   if (health >= 70) return 'text-amber-600 font-medium'
   return 'text-red-600 font-medium'
+}
+
+function statusClass(status?: string | null) {
+  switch (status) {
+    case '在库待售': return 'bg-blue-100 text-blue-700'
+    case '已售出': return 'bg-green-100 text-green-700'
+    case '已回收': return 'bg-purple-100 text-purple-700'
+    default: return 'bg-gray-100 text-gray-700'
+  }
 }
 
 function formatDate(dateStr: string) {

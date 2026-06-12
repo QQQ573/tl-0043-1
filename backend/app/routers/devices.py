@@ -61,8 +61,9 @@ def get_devices(
 
     device_ids = [d.id for d in items]
     inspection_counts = {}
+    transaction_counts = {}
     if device_ids:
-        counts = (
+        ins_counts = (
             db.query(
                 models.Inspection.device_id,
                 func.count(models.Inspection.id)
@@ -74,12 +75,27 @@ def get_devices(
             .group_by(models.Inspection.device_id)
             .all()
         )
-        inspection_counts = {device_id: cnt for device_id, cnt in counts}
+        inspection_counts = {device_id: cnt for device_id, cnt in ins_counts}
+
+        trans_counts = (
+            db.query(
+                models.Transaction.device_id,
+                func.count(models.Transaction.id)
+            )
+            .filter(
+                models.Transaction.device_id.in_(device_ids),
+                models.Transaction.is_deleted == False
+            )
+            .group_by(models.Transaction.device_id)
+            .all()
+        )
+        transaction_counts = {device_id: cnt for device_id, cnt in trans_counts}
 
     result_items = []
     for d in items:
         item_dict = {c.name: getattr(d, c.name) for c in d.__table__.columns}
         item_dict["inspection_count"] = inspection_counts.get(d.id, 0)
+        item_dict["transaction_count"] = transaction_counts.get(d.id, 0)
         result_items.append(schemas.DeviceListItem.model_validate(item_dict))
 
     pages = (total + page_size - 1) // page_size if page_size > 0 else 0
@@ -108,6 +124,9 @@ def get_device(device_id: int, db: Session = Depends(get_db)):
 
     device.inspections = [
         ins for ins in device.inspections if not ins.is_deleted
+    ]
+    device.transactions = [
+        trans for trans in device.transactions if not trans.is_deleted
     ]
     return device
 
@@ -211,6 +230,12 @@ def delete_device(device_id: int, db: Session = Depends(get_db)):
             ins.is_deleted = True
             ins.deleted_at = datetime.utcnow()
             ins.deleted_by = CURRENT_USER
+
+    for trans in device.transactions:
+        if not trans.is_deleted:
+            trans.is_deleted = True
+            trans.deleted_at = datetime.utcnow()
+            trans.deleted_by = CURRENT_USER
 
     db.commit()
     return {"message": "删除成功", "id": device_id}

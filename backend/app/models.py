@@ -19,6 +19,7 @@ class Device(Base):
     repair_history = Column(Text)
     notes = Column(Text)
     estimated_price = Column(Float)
+    status = Column(String(20), default="在库待售", index=True)
     is_deleted = Column(Boolean, default=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -28,6 +29,7 @@ class Device(Base):
     deleted_by = Column(String(50))
 
     inspections = relationship("Inspection", back_populates="device", cascade="all, delete-orphan")
+    transactions = relationship("Transaction", back_populates="device", cascade="all, delete-orphan")
 
 
 class Inspection(Base):
@@ -51,3 +53,25 @@ class Inspection(Base):
     deleted_by = Column(String(50))
 
     device = relationship("Device", back_populates="inspections")
+
+
+class Transaction(Base):
+    __tablename__ = "transactions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(Integer, ForeignKey("devices.id"), nullable=False, index=True)
+    trade_type = Column(String(20), nullable=False, index=True)
+    actual_amount = Column(Float, nullable=False)
+    counterparty_name = Column(String(100), nullable=False)
+    trade_date = Column(Date, nullable=False, index=True)
+    settlement_method = Column(String(20), nullable=False)
+    notes = Column(Text)
+    is_deleted = Column(Boolean, default=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    deleted_at = Column(DateTime(timezone=True))
+    created_by = Column(String(50))
+    updated_by = Column(String(50))
+    deleted_by = Column(String(50))
+
+    device = relationship("Device", back_populates="transactions")

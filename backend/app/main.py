@@ -5,8 +5,8 @@ import os
 from dotenv import load_dotenv
 
 from .database import Base, engine
-from .routers import devices, inspections
-from .schemas import MetadataResponse, MAINSTREAM_BRANDS, APPEARANCE_GRADES, FUNCTION_ITEMS_LIST
+from .routers import devices, inspections, transactions
+from .schemas import MetadataResponse, MAINSTREAM_BRANDS, APPEARANCE_GRADES, FUNCTION_ITEMS_LIST, TRADE_TYPES, SETTLEMENT_METHODS, DEVICE_STATUSES
 
 load_dotenv()
 
@@ -37,6 +37,7 @@ api_prefix = os.getenv("API_V1_PREFIX", "/api/v1")
 
 app.include_router(devices.router, prefix=api_prefix, tags=["设备档案"])
 app.include_router(inspections.router, prefix=api_prefix, tags=["质检记录"])
+app.include_router(transactions.router, prefix=api_prefix, tags=["成交记录"])
 
 
 @app.get("/")
@@ -50,4 +51,7 @@ def get_metadata():
         "mainstream_brands": sorted(list(MAINSTREAM_BRANDS)),
         "appearance_grades": sorted(list(APPEARANCE_GRADES)),
         "function_items": [{"key": item, "label": item} for item in FUNCTION_ITEMS_LIST],
+        "trade_types": sorted(list(TRADE_TYPES)),
+        "settlement_methods": sorted(list(SETTLEMENT_METHODS)),
+        "device_statuses": sorted(list(DEVICE_STATUSES)),
     }
